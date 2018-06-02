@@ -24,7 +24,7 @@ namespace CrossSolar.Controllers
         }
 
         // GET panel/XXXX1111YYYY2222/analytics
-        [HttpGet("{banelId}/[controller]")]
+        [HttpGet("{panelId}/[controller]")]
         public async Task<IActionResult> Get([FromRoute]string panelId)
         {
             var panel = await _panelRepository.Query()
@@ -55,7 +55,25 @@ namespace CrossSolar.Controllers
         [HttpGet("{panelId}/[controller]/day")]
         public async Task<IActionResult> DayResults([FromRoute]string panelId)
         {
+            var panel = await _panelRepository.Query()
+                .FirstOrDefaultAsync(x => x.Serial.Equals(panelId, StringComparison.CurrentCultureIgnoreCase));
+
+            if (panel == null)
+            {
+                return NotFound();
+            }
             var result = new List<OneDayElectricityModel>();
+            result =   (from s in  _analyticsRepository.Query()
+                                   group s by s.DateTime.Date into g
+                                   select new OneDayElectricityModel
+                                   {
+                                       Sum =g.Sum(x=>x.KiloWatt),
+                                       Average = g.Average(x=>x.KiloWatt),
+                                       Maximum = g.Max(x=>x.KiloWatt),
+                                       Minimum = g.Min(x=>x.KiloWatt),
+                                       DateTime = g.Key
+                                   }).ToList();
+
 
             return Ok(result);
         }
