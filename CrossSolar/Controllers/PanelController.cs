@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CrossSolar.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class PanelController : Controller
     {
         private readonly IPanelRepository _panelRepository;
@@ -17,9 +17,8 @@ namespace CrossSolar.Controllers
         {
             _panelRepository = panelRepository;
         }
-
+       
         // POST api/panel
-
         [HttpPost]
         public async Task<IActionResult> Register([FromBody]PanelModel value)
         {
